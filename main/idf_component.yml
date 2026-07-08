@@ -1,0 +1,14 @@
+## IDF Component Manager Manifest File
+dependencies:
+  # esp_lvgl_port 2.8+ needs LVGL >= 9.3 (LV_COLOR_FORMAT_RGB565_SWAPPED)
+  lvgl/lvgl: ">=9.3.0,<10"
+  waveshare/esp32_p4_wifi6_touch_lcd_7b: "^1"
+  esp_video:
+    version: "0.8.*"
+    public: true
+  espressif/human_face_recognition:
+    path: ../components/human_face_recognition
+  espressif/esp_wifi_remote:
+    version: ">=0.14.5"
+  idf:
+    version: ">=5.4"

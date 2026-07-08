@@ -1,0 +1,7 @@
+# IDF Component Manager：当访问 components-file.espressif.com 超时/被拒时，
+# 优先走国内 CDN（与 Espressif 文档推荐一致），再回退到国际站。
+profiles:
+  default:
+    storage_url:
+      - "https://components-file.espressif.cn"
+      - "https://components-file.espressif.com"

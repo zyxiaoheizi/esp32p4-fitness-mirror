@@ -1,0 +1,175 @@
+menu "Video Configuration"
+
+    config EXAMPLE_ENABLE_MIPI_CSI_CAM_SENSOR
+        bool "Enable MIPI CSI Camera Sensor"
+        default y
+        depends on SOC_MIPI_CSI_SUPPORTED
+
+    if EXAMPLE_ENABLE_MIPI_CSI_CAM_SENSOR
+        config EXAMPLE_MIPI_CSI_SCCB_I2C_PORT
+            int "MIPI CSI SCCB I2C Port Number"
+            default 0
+            range 0 1
+
+        config EXAMPLE_MIPI_CSI_SCCB_I2C_SCL_PIN
+            int "MIPI CSI SCCB I2C SCL Pin"
+            default 8
+            range -1 56
+
+        config EXAMPLE_MIPI_CSI_SCCB_I2C_SDA_PIN
+            int "MIPI CSI SCCB I2C SDA Pin"
+            default 7
+            range -1 56
+
+        config EXAMPLE_MIPI_CSI_SCCB_I2C_FREQ
+            int "MIPI CSI SCCB I2C Frequency"
+            default 100000
+            range 100000 400000
+            help
+                Increasing this value can reduce the initialization time of the camera sensor.
+                Please refer to the relevant instructions of the camera sensor to adjust the value.
+
+        config EXAMPLE_MIPI_CSI_CAM_SENSOR_RESET_PIN
+            int "MIPI CSI Camera Sensor Reset Pin"
+            default -1
+            range -1 56
+
+        config EXAMPLE_MIPI_CSI_CAM_SENSOR_PWDN_PIN
+            int "MIPI CSI Camera Sensor Power Down Pin"
+            default -1
+            range -1 56
+    endif
+
+    config EXAMPLE_ENABLE_PRINT_FPS_RATE_VALUE
+        bool "enable print fps rate value"
+        default y
+
+    config EXAMPLE_ENABLE_CAM_SENSOR_PIC_VFLIP
+        bool "Enable Camera Sensor Picture Vertical Flip"
+        default y
+        help
+            Select this option, enable camera sensor picture vertical flip.
+
+    config EXAMPLE_ENABLE_CAM_SENSOR_PIC_HFLIP
+        bool "Enable Camera Sensor Picture Horizontal Flip"
+        default y
+        help
+            Select this option, enable camera sensor picture horizontal flip.
+
+endmenu
+
+menu "PC Pose"
+    config PC_POSE_ENABLE
+        bool "Enable PC-side pose estimation"
+        default y
+        help
+            Send a resized RGB565 frame to a PC TCP service and draw returned
+            33-point pose landmarks on the board.
+
+    config PC_POSE_WIFI_SSID
+        string "Wi-Fi SSID for PC pose"
+        default "zyntm"
+
+    config PC_POSE_WIFI_PASSWORD
+        string "Wi-Fi password for PC pose"
+        default "ZY616161"
+
+    config PC_POSE_SERVER_URL
+        string "PC pose server URL"
+        default "http://192.168.1.100:8000/pose"
+        help
+            Legacy HTTP URL. The fast path uses PC_POSE_SERVER_HOST and PC_POSE_SERVER_PORT.
+
+    config PC_POSE_SERVER_HOST
+        string "PC pose server host"
+        default "192.168.43.131"
+        help
+            PC LAN IPv4 address running tools/pc_pose_server/server.py.
+
+    config PC_POSE_SERVER_PORT
+        int "PC pose TCP server port"
+        default 8000
+        range 1 65535
+
+    config PC_POSE_FRAME_W
+        int "PC pose upload width"
+        default 320
+        range 96 640
+
+    config PC_POSE_FRAME_H
+        int "PC pose upload height"
+        default 240
+        range 96 480
+
+    config PC_POSE_HTTP_TIMEOUT_MS
+        int "PC pose TCP timeout in ms"
+        default 2500
+        range 500 10000
+
+    config PC_POSE_WIFI_CONNECT_TIMEOUT_MS
+        int "PC pose Wi-Fi connect wait in ms"
+        default 10000
+        range 1000 60000
+
+    config PC_POSE_WIFI_MAX_RETRY
+        int "PC pose Wi-Fi retry count"
+        default 8
+        range 1 50
+
+    config PC_POSE_RESPONSE_MAX_BYTES
+        int "PC pose response buffer bytes"
+        default 16384
+        range 4096 65536
+endmenu
+
+menu "UI display rotation"
+    choice APP_UI_DISP_ROTATION
+        prompt "LVGL display rotation (physical panel upside-down)"
+        default APP_UI_DISP_ROT_180
+        help
+            Match the official 11_esp_brookesia_phone example for the
+            ESP32-P4-WIFI6-Touch-LCD-7B kit.
+
+        config APP_UI_DISP_ROT_0
+            bool "0 deg (no rotation)"
+        config APP_UI_DISP_ROT_180
+            bool "180 deg"
+    endchoice
+endmenu
+
+menu "Camera Sensor (Waveshare ESP32-P4-WIFI6-Touch-LCD-7B)"
+    choice CAMERA_SENSOR_MODEL
+        prompt "Camera sensor model"
+        default CAMERA_SENSOR_OV5647
+        help
+            Your board uses OV5647 MIPI CSI camera.
+            Reference the working code from 11_esp_brookesia_phone/components/apps/camera/
+            and the parent's app_video / pipeline implementation.
+
+        config CAMERA_SENSOR_OV5647
+            bool "OV5647 (MIPI CSI)"
+        config CAMERA_SENSOR_SC2336
+            bool "SC2336 (MIPI CSI, fallback)"
+        config CAMERA_SENSOR_NONE
+            bool "No camera / Custom"
+    endchoice
+endmenu
+
+menu "Face DB (human_face_recognition example)"
+    choice DB_FILE_SYSTEM
+        prompt "database file system"
+        default DB_SPIFFS
+        config DB_FATFS_FLASH
+            bool "fatfs_flash"
+        config DB_FATFS_SDCARD
+            bool "fatfs_sdcard"
+        config DB_SPIFFS
+            bool "spiffs"
+    endchoice
+
+    config DB_FILE_SYSTEM
+        int
+        default 0 if DB_FATFS_FLASH
+        default 1 if DB_FATFS_SDCARD
+        default 2 if DB_SPIFFS
+endmenu
